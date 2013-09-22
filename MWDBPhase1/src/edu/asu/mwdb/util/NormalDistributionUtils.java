@@ -32,10 +32,12 @@ public class NormalDistributionUtils {
 			if(inBetween(Math.abs(value),bands[i],bands[i+1]))
 				break;
 		}
-		if(value>0)
-			return (char)('A'+i);
-		else
-			return (char)('a'+i);
+		if(value>0){
+			return (char)(79+i);
+		}
+		else{
+			return (char)(79-i);
+		}
 	}
 	
 	private static boolean inBetween(float value, double min, double max){

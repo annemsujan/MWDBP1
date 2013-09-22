@@ -20,4 +20,11 @@ public class SensorWords {
 	public void setWords(ArrayList<String> words) {
 		this.words = words;
 	}
+	
+	public void print(){
+		for(int i=0;i<words.size();i++){
+			System.out.print(words.get(i)+"\t");
+		}
+		System.out.println();
+	}
 }

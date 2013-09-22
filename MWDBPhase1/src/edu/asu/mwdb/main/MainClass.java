@@ -4,15 +4,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-
-import org.apache.commons.math3.distribution.NormalDistribution;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import edu.asu.mwdb.beans.GestureOneDim;
 import edu.asu.mwdb.beans.OneDGestureWords;
+import edu.asu.mwdb.beans.SensorWord;
 import edu.asu.mwdb.exceptions.InvalidPathException;
 import edu.asu.mwdb.fileio.LoopThroughAllFiles;
+import edu.asu.mwdb.operations.TFIDFUtils;
+import edu.asu.mwdb.util.ComparisionUtils;
+import edu.asu.mwdb.util.Constants;
+import edu.asu.mwdb.util.DrawImage;
 import edu.asu.mwdb.util.GenerateWords;
-import edu.asu.mwdb.util.GestureUtils;
+import edu.asu.mwdb.util.Misc;
 import edu.asu.mwdb.util.NormalDistributionUtils;
 import edu.asu.mwdb.util.NormalizeGesture;
 import edu.asu.mwdb.util.Validators;
@@ -23,56 +29,116 @@ public class MainClass {
 			BufferedReader buf = new BufferedReader(new InputStreamReader(System.in));
 			System.out.println("Use Defaults?");
 			String option = buf.readLine();
+			String inputPath="";
+			float stdDev,mean;
+			int window=0,shift=0,resolution;
 			if(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
-				
+				inputPath = "/Users/kishanmaddula/Dropbox/Assignments/MWDB/Phase 1/sampledata/X";
+				//inputPath = "/Users/kishanmaddula/Dropbox/Assignments/MWDB/Phase 1/testdata";
+				stdDev = 0.25f;
+				mean = 0;
+				window = 5;
+				shift = 2;
+				resolution = 10;
 			}
 			else{
 				System.out.println("Please enter the input folder: ");
-				String inputPath = buf.readLine();
+				inputPath = buf.readLine();
 				if(!Validators.validatePath(inputPath))
 					throw new InvalidPathException(inputPath);
 				System.out.println("Standard Deviation: ");
-				float stdDev = Float.parseFloat(buf.readLine());
+				stdDev = Float.parseFloat(buf.readLine());
+				System.out.println("Mean: ");
+				mean = Float.parseFloat(buf.readLine());
 				System.out.println("Window Length: ");
-				int window = Integer.parseInt(buf.readLine());
+				window = Integer.parseInt(buf.readLine());
 				System.out.println("Shift Distance: ");
-				int shift = Integer.parseInt(buf.readLine());
+				shift = Integer.parseInt(buf.readLine());
 				System.out.println("Resolution: ");
-				float resolution = Float.parseFloat(buf.readLine());
+				resolution = Integer.parseInt(buf.readLine());
+			}
+			Constants.WINDOW_LENGTH = window;
+			Constants.SHIFT_LENGTH = shift;
+			NormalDistributionUtils.MEAN = mean;
+			NormalDistributionUtils.STD = stdDev;
+			NormalDistributionUtils.RESOLUTION = resolution;
 
-				NormalDistributionUtils.MEAN = 0;
-				NormalDistributionUtils.STD = 0.25f;
-				NormalDistributionUtils.RESOLUTION = 10;
-				
-				LoopThroughAllFiles loop = new LoopThroughAllFiles();
-				ArrayList<GestureOneDim> gestures = loop.getAllGestures(inputPath);
-				ArrayList<GestureOneDim> normalizedGestures = new ArrayList<GestureOneDim>();
-				for(int i=0;i<gestures.size();i++){
-					GestureOneDim normalized = NormalizeGesture.normalize(gestures.get(i));
-					normalizedGestures.add(normalized);
-					GenerateWords words = new GenerateWords(window, shift);
-					OneDGestureWords actualWords = words.generateWords(normalized);
-					System.out.println(actualWords.toString());
-				}
-				
-				option = "Y";
-				while(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
-					System.out.println("Do you want to enter input gesture file?");
-					option = buf.readLine();
-					if(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
-					
+			LoopThroughAllFiles loop = new LoopThroughAllFiles();
+			HashMap<String, GestureOneDim> gestures = loop.getAllGestures(inputPath);
+			ArrayList<GestureOneDim> normalizedGestures = new ArrayList<GestureOneDim>();
+			HashMap<String,OneDGestureWords> fileWords = new HashMap<String,OneDGestureWords>();
+			HashMap<String, GestureOneDim> normalGestures = new HashMap<String, GestureOneDim>();
+			ArrayList<String> fileNames = new ArrayList<String>();
+			Iterator iterator = gestures.entrySet().iterator();
+			while(iterator.hasNext()){
+				Map.Entry pairs = (Map.Entry) iterator.next();
+				GestureOneDim normalized = NormalizeGesture.normalize((GestureOneDim)pairs.getValue());
+				normalGestures.put(pairs.getKey().toString(), normalized);
+				normalizedGestures.add(normalized);
+				GenerateWords words = new GenerateWords(window, shift);
+				OneDGestureWords actualWords = words.generateWords(normalized);
+				fileWords.put(Misc.getFileName(pairs.getKey().toString()),actualWords);
+				System.out.println("File Path " + pairs.getKey().toString());;
+				ArrayList<HashMap<String,Integer>> results =TFIDFUtils.calculateTFValues(actualWords,Integer.parseInt(Misc.getOnlyFileName(pairs.getKey().toString())),Misc.getOnlyFileName(pairs.getKey().toString()));
+				TFIDFUtils.printTFValues(results);
+				fileNames.add(Misc.getOnlyFileName(pairs.getKey().toString()));
+			}
+
+			TFIDFUtils.calculateIDF();
+			TFIDFUtils.printIDFValues();
+			TFIDFUtils.calculateIDF2();
+			TFIDFUtils.printIDF2();
+			TFIDFUtils.calculateTFIDF();
+			TFIDFUtils.calculateTFIDF2();
+			
+			option = "Y";
+			while(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
+				System.out.println("Do you want to enter number of input gesture file?");
+				option = buf.readLine();
+				if(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
+					System.out.println("File number please");
+					String fileNum = buf.readLine();
+					OneDGestureWords selected = fileWords.get(fileNum);
+					if(selected==null){
+						System.out.println("File not found");
+					}
+					else{
+						System.out.println("Enter your top 10 choice:");
+						System.out.println("\n1. TF\n2. IDF\n3. IDF2\n4. TF-IDF\n5. TF-IDF2");
+						int choice = Integer.parseInt(buf.readLine());
+						ArrayList<SensorWord> topWords = TFIDFUtils.getTopWords(selected,choice,Misc.getOnlyFileName(fileNum));
+						DrawImage.drawImage(normalGestures.get(fileNum),selected,topWords);
+						TFIDFUtils.printTFIDF2(Misc.getOnlyFileName(fileNum));
 					}
 				}
-				
-				option = "Y";
-				while(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
-					System.out.println("Do you want to enter data file?");
-					option = buf.readLine();
-					if(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
-					
+			}
+
+			option = "Y";
+			while(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
+				System.out.println("Do you want to enter data file?");
+				option = buf.readLine();
+				if(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
+					System.out.println("Please enter the input file: ");
+					inputPath = buf.readLine();
+					GestureOneDim inputFile = new LoopThroughAllFiles().readSingleFile(inputPath);
+					System.out.println("How do you want to compare?");
+					System.out.println("\n1. TF\n2. TF-IDF\n3. TF-IDF2");
+					int compareOption = Integer.parseInt(buf.readLine());
+					ArrayList<String> similarFiles = new ArrayList<String>();
+					switch(compareOption){
+					case 1 : similarFiles = ComparisionUtils.getSimilarTFDocs(inputFile,fileNames);
+							 break;
+					case 2 : similarFiles = ComparisionUtils.getSimilarTFIDFDocs(inputFile, fileNames);
+							 break;
+					case 3 : similarFiles = ComparisionUtils.getSimilarTFIDF2Docs(inputFile, fileNames);
+							 break;
 					}
+					System.out.println("Similar Files:");
+					for(int i=0;i<similarFiles.size();i++){
+						System.out.print(similarFiles.get(i)+"\t");
+					}
+					System.out.println();
 				}
-				
 			}
 		}
 		catch(IOException e){
@@ -83,6 +149,7 @@ public class MainClass {
 		}
 		catch(NumberFormatException e){
 			System.out.println("Invalid number entered");
+			e.printStackTrace();
 		}
 	}
 }

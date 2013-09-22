@@ -16,4 +16,15 @@ public class OneDGestureWords {
 	public SensorWords getSensor(int index){
 		return sensors.get(index);
 	}
+	
+	public ArrayList<SensorWords> getSensors(){
+		return this.sensors;
+	}
+	
+	public void print(){
+		for(int i=0;i<sensors.size();i++){
+			System.out.print("Sensor " + i + "\t");
+			sensors.get(i).print();
+		}
+	}
 }
