@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -23,6 +24,11 @@ import edu.asu.mwdb.util.NormalDistributionUtils;
 import edu.asu.mwdb.util.NormalizeGesture;
 import edu.asu.mwdb.util.Validators;
 
+/**
+ * This is the main class from which control is operated
+ * @author kishanmaddula
+ *
+ */
 public class MainClass {
 	public static void main(String args[]){
 		try{
@@ -32,15 +38,17 @@ public class MainClass {
 			String inputPath="";
 			float stdDev,mean;
 			int window=0,shift=0,resolution;
+			//Default configuration parameters
 			if(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
-				inputPath = "/Users/kishanmaddula/Dropbox/Assignments/MWDB/Phase 1/sampledata/X";
-				//inputPath = "/Users/kishanmaddula/Dropbox/Assignments/MWDB/Phase 1/testdata";
+				//inputPath = "/Users/kishanmaddula/Dropbox/Assignments/MWDB/Phase 1/sampledata/X";
+				inputPath = "/Users/kishanmaddula/Desktop/data set";
 				stdDev = 0.25f;
 				mean = 0;
 				window = 5;
-				shift = 2;
-				resolution = 10;
+				shift = 3;
+				resolution = 5;
 			}
+			//User selected parameters
 			else{
 				System.out.println("Please enter the input folder: ");
 				inputPath = buf.readLine();
@@ -57,40 +65,58 @@ public class MainClass {
 				System.out.println("Resolution: ");
 				resolution = Integer.parseInt(buf.readLine());
 			}
+			
+			//Set the global parameters to be used in other files
 			Constants.WINDOW_LENGTH = window;
 			Constants.SHIFT_LENGTH = shift;
 			NormalDistributionUtils.MEAN = mean;
 			NormalDistributionUtils.STD = stdDev;
 			NormalDistributionUtils.RESOLUTION = resolution;
 
+			// Loop through all the files in the input path and get gesture data
 			LoopThroughAllFiles loop = new LoopThroughAllFiles();
 			HashMap<String, GestureOneDim> gestures = loop.getAllGestures(inputPath);
+			
+			// Initialize various data objects
 			ArrayList<GestureOneDim> normalizedGestures = new ArrayList<GestureOneDim>();
 			HashMap<String,OneDGestureWords> fileWords = new HashMap<String,OneDGestureWords>();
 			HashMap<String, GestureOneDim> normalGestures = new HashMap<String, GestureOneDim>();
 			ArrayList<String> fileNames = new ArrayList<String>();
 			Iterator iterator = gestures.entrySet().iterator();
+			
+			//Get current time
+			Calendar cal = Calendar.getInstance();
+			long befTime = cal.getTimeInMillis();
+
+			// Iterate through each gesture, normalize, generate words and generate TF values
 			while(iterator.hasNext()){
 				Map.Entry pairs = (Map.Entry) iterator.next();
+				System.out.println("Gesture " + pairs.getKey().toString());
 				GestureOneDim normalized = NormalizeGesture.normalize((GestureOneDim)pairs.getValue());
 				normalGestures.put(pairs.getKey().toString(), normalized);
 				normalizedGestures.add(normalized);
 				GenerateWords words = new GenerateWords(window, shift);
 				OneDGestureWords actualWords = words.generateWords(normalized);
 				fileWords.put(Misc.getFileName(pairs.getKey().toString()),actualWords);
-				System.out.println("File Path " + pairs.getKey().toString());;
-				ArrayList<HashMap<String,Integer>> results =TFIDFUtils.calculateTFValues(actualWords,Integer.parseInt(Misc.getOnlyFileName(pairs.getKey().toString())),Misc.getOnlyFileName(pairs.getKey().toString()));
+				ArrayList<HashMap<String,Float>> results =TFIDFUtils.calculateTFValues(actualWords,Integer.parseInt(Misc.getOnlyFileName(pairs.getKey().toString())),Misc.getOnlyFileName(pairs.getKey().toString()));
 				TFIDFUtils.printTFValues(results);
 				fileNames.add(Misc.getOnlyFileName(pairs.getKey().toString()));
 			}
 
+			//Calculate IDF, IDF2, TFIDF, TFIDF2
 			TFIDFUtils.calculateIDF();
-			TFIDFUtils.printIDFValues();
 			TFIDFUtils.calculateIDF2();
-			TFIDFUtils.printIDF2();
 			TFIDFUtils.calculateTFIDF();
 			TFIDFUtils.calculateTFIDF2();
+			TFIDFUtils.printIDF2();
+			TFIDFUtils.printIDFValues();
 			
+			Calendar cal2 = Calendar.getInstance();
+			long aftTime = cal2.getTimeInMillis();
+			
+			System.out.println("Total time taken to calculate TF, IDF, IDF2 (in secs): " + (float)(aftTime - befTime)/1000 );
+			
+			//Check if user needs to generate heatmap
 			option = "Y";
 			while(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
 				System.out.println("Do you want to enter number of input gesture file?");
@@ -107,12 +133,13 @@ public class MainClass {
 						System.out.println("\n1. TF\n2. IDF\n3. IDF2\n4. TF-IDF\n5. TF-IDF2");
 						int choice = Integer.parseInt(buf.readLine());
 						ArrayList<SensorWord> topWords = TFIDFUtils.getTopWords(selected,choice,Misc.getOnlyFileName(fileNum));
+						//TFIDFUtils.printTFValues(fileNum);
 						DrawImage.drawImage(normalGestures.get(fileNum),selected,topWords);
-						TFIDFUtils.printTFIDF2(Misc.getOnlyFileName(fileNum));
 					}
 				}
 			}
 
+			// Check if user wants to get similar vectors
 			option = "Y";
 			while(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
 				System.out.println("Do you want to enter data file?");

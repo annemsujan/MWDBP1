@@ -16,7 +16,7 @@ public class ComparisionUtils {
 		GestureOneDim normalized = NormalizeGesture.normalize(inputFile);
 		GenerateWords words = new GenerateWords(Constants.WINDOW_LENGTH, Constants.SHIFT_LENGTH);
 		OneDGestureWords actualWords = words.generateWords(normalized);
-		ArrayList<HashMap<String,Integer>> tfVals = TFIDFUtils.calculateOnlyTFValues(actualWords);
+		ArrayList<HashMap<String,Float>> tfVals = TFIDFUtils.calculateOnlyTFValues(actualWords);
 		return getSimilarTFVectors(tfVals,fileNames);
 	}
 	
@@ -24,10 +24,10 @@ public class ComparisionUtils {
 		GestureOneDim normalized = NormalizeGesture.normalize(inputFile);
 		GenerateWords words = new GenerateWords(Constants.WINDOW_LENGTH, Constants.SHIFT_LENGTH);
 		OneDGestureWords actualWords = words.generateWords(normalized);
-		ArrayList<HashMap<String,Integer>> tfVals = TFIDFUtils.calculateOnlyTFValues(actualWords);
+		ArrayList<HashMap<String,Float>> tfVals = TFIDFUtils.calculateOnlyTFValues(actualWords);
 		ArrayList<HashMap<String,Float>> tfIdfVals = new ArrayList<HashMap<String,Float>>();
 		for(int i=0;i<tfVals.size();i++){
-			HashMap<String,Integer> tfValsMap = tfVals.get(i);
+			HashMap<String,Float> tfValsMap = tfVals.get(i);
 			HashMap<String,Float> tfIdfValsMap = new HashMap<String,Float>();
 			Iterator iter = tfValsMap.entrySet().iterator();
 			while(iter.hasNext()){
@@ -36,7 +36,7 @@ public class ComparisionUtils {
 				float value = TFIDFUtils.getIdfValue(key);
 				if(Float.isNaN(value))
 					value = (float)Math.log(Constants.NUMBER_OF_DOCS*Constants.NUMBER_OF_SENSORS);
-				float newVal = Integer.parseInt(pairs.getValue().toString())*value;
+				float newVal = Float.parseFloat(pairs.getValue().toString())*value;
 				tfIdfValsMap.put(key, newVal);
 			}
 			tfIdfVals.add(tfIdfValsMap);
@@ -48,12 +48,12 @@ public class ComparisionUtils {
 		GestureOneDim normalized = NormalizeGesture.normalize(inputFile);
 		GenerateWords words = new GenerateWords(Constants.WINDOW_LENGTH, Constants.SHIFT_LENGTH);
 		OneDGestureWords actualWords = words.generateWords(normalized);
-		ArrayList<HashMap<String,Integer>> tfVals = TFIDFUtils.calculateOnlyTFValues(actualWords);
+		ArrayList<HashMap<String,Float>> tfVals = TFIDFUtils.calculateOnlyTFValues(actualWords);
 		ArrayList<HashMap<String,Float>> tfIdf2Vals = new ArrayList<HashMap<String,Float>>();
 		HashMap<String,Float> idf2Vals = new HashMap<String,Float>();
 		
 		for(int i=0;i<tfVals.size();i++){
-			HashMap<String,Integer> tfMap = tfVals.get(i);
+			HashMap<String,Float> tfMap = tfVals.get(i);
 			Iterator iter = tfMap.entrySet().iterator();
 			while(iter.hasNext()){
 				Map.Entry pairs = (Map.Entry) iter.next();
@@ -74,14 +74,14 @@ public class ComparisionUtils {
 		}
 		
 		for(int i=0;i<tfVals.size();i++){
-			HashMap<String,Integer> tfValsMap = tfVals.get(i);
+			HashMap<String,Float> tfValsMap = tfVals.get(i);
 			HashMap<String,Float> tfIdfValsMap = new HashMap<String,Float>();
 			iter = tfValsMap.entrySet().iterator();
 			while(iter.hasNext()){
 				Map.Entry pairs = (Map.Entry) iter.next();
 				String key = pairs.getKey().toString();
 				float value = idf2Vals.get(key);
-				float newVal = Integer.parseInt(pairs.getValue().toString())*value;
+				float newVal = Float.parseFloat(pairs.getValue().toString())*value;
 				tfIdfValsMap.put(key, newVal);
 			}
 			tfIdf2Vals.add(tfIdfValsMap);
@@ -136,7 +136,7 @@ public class ComparisionUtils {
 		return totalSum;
 	}
 	
-	private static ArrayList<String> getSimilarTFVectors(ArrayList<HashMap<String,Integer>> tfVals, ArrayList<String> fileNames){
+	private static ArrayList<String> getSimilarTFVectors(ArrayList<HashMap<String,Float>> tfVals, ArrayList<String> fileNames){
 		TreeMap<Float, ArrayList<String>> simMap = new TreeMap<Float,ArrayList<String>>();
 		for(int i=0;i<fileNames.size();i++){
 			float value = vectorSimilarity(tfVals,TFIDFUtils.getTFValues(fileNames.get(i)));
@@ -149,7 +149,7 @@ public class ComparisionUtils {
 		return topKValues(simMap,Constants.TOP_COUNT);
 	}
 	
-	private static float vectorSimilarity(ArrayList<HashMap<String,Integer>> query, ArrayList<HashMap<String,Integer>> file){
+	private static float vectorSimilarity(ArrayList<HashMap<String,Float>> query, ArrayList<HashMap<String,Float>> file){
 		float totalSum = 0;
 		for(int i=0;i<query.size();i++){
 			totalSum+= dotProduct(query.get(i),file.get(i))/(magnitude(query.get(i))*magnitude(file.get(i)));
@@ -157,7 +157,7 @@ public class ComparisionUtils {
 		return totalSum;
 	}
 	
-	private static float dotProduct(HashMap<String,Integer> query, HashMap<String,Integer> file){
+	private static float dotProduct(HashMap<String,Float> query, HashMap<String,Float> file){
 		float totalSum = 0;
 		Iterator it = query.entrySet().iterator();
 		while(it.hasNext()){
@@ -170,7 +170,7 @@ public class ComparisionUtils {
 		return totalSum;
 	}
 	
-	private static double magnitude(HashMap<String,Integer> vector){
+	private static double magnitude(HashMap<String,Float> vector){
 		float sum = 0;
 		Iterator it = vector.entrySet().iterator();
 		while(it.hasNext()){
@@ -181,6 +181,7 @@ public class ComparisionUtils {
 		return Math.sqrt(sum);
 	}
 	
+	// Returns the magnitude of the vector
 	private static double magnitude(HashMap<String,Float> vector, int flag){
 		float sum = 0;
 		Iterator it = vector.entrySet().iterator();
@@ -192,6 +193,7 @@ public class ComparisionUtils {
 		return Math.sqrt(sum);
 	}
 	
+	// Returns the top k values in the map
 	private static ArrayList<String> topKValues(TreeMap<Float,ArrayList<String>> map, int count){
 		ArrayList<String> result = new ArrayList<String>();
 		for(int i=0;i<count;){

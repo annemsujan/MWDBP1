@@ -5,7 +5,7 @@ public class Constants {
 	public static int NUMBER_OF_DOCS;
 	public static float HIGHEST_IDF;
 	public static int TOP_COUNT = 10;
-	public static int GRAYSCALE_VALS = 256;
+	public static int GRAYSCALE_VALS = 255;
 	public static float MAX = 1.0f;
 	public static float MIN = -1.0f;
 	public static int WINDOW_LENGTH;

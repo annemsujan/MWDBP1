@@ -30,7 +30,6 @@ public class DrawGraph extends JPanel {
 		}
 		size.setSize(width, height);
 		colors = grayScale;
-		System.out.println("HEIGHT : " + height + "\n" + "Width: " + width);
 		try {
 			image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 			WritableRaster raster = image.getRaster();
