@@ -41,7 +41,7 @@ public class MainClass {
 			//Default configuration parameters
 			if(option.equalsIgnoreCase("Y") || option.equalsIgnoreCase("yes")){
 				//inputPath = "/Users/kishanmaddula/Dropbox/Assignments/MWDB/Phase 1/sampledata/X";
-				inputPath = "/Users/kishanmaddula/Desktop/data set";
+				inputPath = "/Users/kishanmaddula/Documents/dataset";
 				stdDev = 0.25f;
 				mean = 0;
 				window = 5;
@@ -91,7 +91,6 @@ public class MainClass {
 			// Iterate through each gesture, normalize, generate words and generate TF values
 			while(iterator.hasNext()){
 				Map.Entry pairs = (Map.Entry) iterator.next();
-				System.out.println("Gesture " + pairs.getKey().toString());
 				GestureOneDim normalized = NormalizeGesture.normalize((GestureOneDim)pairs.getValue());
 				normalGestures.put(pairs.getKey().toString(), normalized);
 				normalizedGestures.add(normalized);
@@ -99,7 +98,6 @@ public class MainClass {
 				OneDGestureWords actualWords = words.generateWords(normalized);
 				fileWords.put(Misc.getFileName(pairs.getKey().toString()),actualWords);
 				ArrayList<HashMap<String,Float>> results =TFIDFUtils.calculateTFValues(actualWords,Integer.parseInt(Misc.getOnlyFileName(pairs.getKey().toString())),Misc.getOnlyFileName(pairs.getKey().toString()));
-				TFIDFUtils.printTFValues(results);
 				fileNames.add(Misc.getOnlyFileName(pairs.getKey().toString()));
 			}
 
@@ -108,8 +106,6 @@ public class MainClass {
 			TFIDFUtils.calculateIDF2();
 			TFIDFUtils.calculateTFIDF();
 			TFIDFUtils.calculateTFIDF2();
-			TFIDFUtils.printIDF2();
-			TFIDFUtils.printIDFValues();
 			
 			Calendar cal2 = Calendar.getInstance();
 			long aftTime = cal2.getTimeInMillis();
@@ -135,6 +131,7 @@ public class MainClass {
 						ArrayList<SensorWord> topWords = TFIDFUtils.getTopWords(selected,choice,Misc.getOnlyFileName(fileNum));
 						//TFIDFUtils.printTFValues(fileNum);
 						DrawImage.drawImage(normalGestures.get(fileNum),selected,topWords);
+						
 					}
 				}
 			}

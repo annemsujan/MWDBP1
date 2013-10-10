@@ -14,12 +14,12 @@ import edu.asu.mwdb.beans.Rectangle;
 public class DrawGraph extends JPanel {
 	BufferedImage image;
 	Dimension size = new Dimension();
-	int[][] colors;
+	double[][] colors;
 	ArrayList<Rectangle> rectangles;
 	int heightFactor = 10;
 	int widthFactor = 20;
 
-	public DrawGraph(int[][] grayScale, ArrayList<Rectangle> rectangles) {
+	public DrawGraph(double[][] grayScale, ArrayList<Rectangle> rectangles) {
 
 		int height = grayScale.length*heightFactor;
 		int width = grayScale[0].length*widthFactor;

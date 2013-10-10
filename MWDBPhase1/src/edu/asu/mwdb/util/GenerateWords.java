@@ -42,10 +42,11 @@ public class GenerateWords {
 		SensorWords result = new SensorWords();
 		for(int i=0;i<chars.size();i++)
 			characters[i] = chars.get(i);
-		for(int i=0;i<chars.size()-width;i+=shift){
+		for(int i=0;i<chars.size();i+=shift){
 			StringBuilder tempString = new StringBuilder();
 			for(int j=0;j<width;j++){
-				tempString.append(characters[i+j]);
+				if((i+j)<chars.size())
+					tempString.append(characters[i+j]);
 			}
 			result.addWord(tempString.toString());
 		}

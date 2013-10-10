@@ -33,7 +33,15 @@ public class LoopThroughAllFiles {
 	}
 	
 	public GestureOneDim readSingleFile(String path){
-		return readFileData(path);
+		GestureOneDim returnVal = new GestureOneDim();
+		if(new File(path).exists()){
+			returnVal = readFileData(path);
+		}
+		else {
+			System.out.println("File not found");
+			System.exit(1);
+		}
+		return returnVal;
 	}
 
 	private GestureOneDim readFileData(String path){

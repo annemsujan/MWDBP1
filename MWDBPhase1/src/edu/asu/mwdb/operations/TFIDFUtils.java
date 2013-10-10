@@ -387,10 +387,6 @@ public class TFIDFUtils {
 			Map.Entry pairs = (Map.Entry) it.next();
 			Float key = Float.parseFloat(pairs.getKey().toString());
 			ArrayList<SensorWord> value = (ArrayList<SensorWord>) pairs.getValue();
-			System.out.print("\nKey : " + key);
-			for(int i=0;i<value.size();i++){
-				value.get(i).print();
-			}
 		}
 	}
 
@@ -416,33 +412,16 @@ public class TFIDFUtils {
 				map.put(count, words);
 			}
 		}
-		return topValues(map,Constants.TOP_COUNT,selected);
-	}
-
-	public static ArrayList<SensorWord> topValues(TreeMap<Float,ArrayList<SensorWord>> map, int count, ArrayList<HashMap<String,Float>> selected){
-		ArrayList<SensorWord> result = new ArrayList<SensorWord>();
-		for(int i=0;i<count;i++){
-			ArrayList<SensorWord> temp = map.get(map.lastKey());
-			for(int j=0;j<temp.size();j++){
-				result.add(temp.get(j));
-				i++;
-				if(i==count-1)
-					break;
-			}
-			map.remove(map.lastKey());
-		}
-		return result;
+		return topValues(map,Constants.TOP_COUNT);
 	}
 
 	public static ArrayList<SensorWord> topValues(TreeMap<Float,ArrayList<SensorWord>> map, int count){
 		ArrayList<SensorWord> result = new ArrayList<SensorWord>();
 		for(int i=0;i<count;){
 			ArrayList<SensorWord> temp = map.get(map.lastKey());
-			for(int j=0;j<temp.size();j++){
+			for(int j=0;j<temp.size() && i<count;j++){
 				result.add(temp.get(j));
 				i++;
-				if(i==count-1)
-					break;
 			}
 			map.remove(map.lastKey());
 		}

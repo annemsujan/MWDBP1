@@ -13,6 +13,7 @@ public class NormalDistributionUtils {
 	public static NormalDistributionUtils getInstance(){
 		if(instance==null){
 			instance = new NormalDistributionUtils(MEAN,STD,RESOLUTION);
+			
 		}
 		return instance;
 	}
@@ -25,19 +26,14 @@ public class NormalDistributionUtils {
 	}
 	
 	public static char getBand(float value){
-		if(!initialized)
+		if(!instance.initialized)
 			init();
 		short i=0;
-		for(;i<instance.RESOLUTION-1;i++){
-			if(inBetween(Math.abs(value),bands[i],bands[i+1]))
+		for(;i<instance.bands.length-1;i++){
+			if(inBetween(value,instance.bands[i],instance.bands[i+1]))
 				break;
 		}
-		if(value>0){
-			return (char)(79+i);
-		}
-		else{
-			return (char)(79-i);
-		}
+		return (char)(65+i);
 	}
 	
 	private static boolean inBetween(float value, double min, double max){
@@ -46,12 +42,16 @@ public class NormalDistributionUtils {
 	
 	private static void init(){
 		float width = DIST_MAX/instance.RESOLUTION;
-		instance.bands = new double[instance.RESOLUTION];
+		instance.bands = new double[2*(instance.RESOLUTION)+1];
 		NormalDistribution dist = new NormalDistribution(instance.MEAN, instance.STD);
 		double constantVal = dist.cumulativeProbability(0);
 		for(int i=0;i<instance.RESOLUTION;i++){
 			double firstVal = dist.cumulativeProbability(i*width);
-			instance.bands[i] = (firstVal-constantVal)*2;
+			instance.bands[instance.RESOLUTION+i] = (firstVal-constantVal)*2;
+			instance.bands[instance.RESOLUTION-i] = -(firstVal-constantVal)*2;
 		}
+		instance.bands[0]=-1;
+		instance.bands[instance.RESOLUTION]=0;
+		instance.bands[instance.bands.length-1]=1;
 	}
 }
