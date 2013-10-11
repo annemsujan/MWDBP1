@@ -12,22 +12,19 @@ public class NormalDistributionUtils {
 	
 	public static NormalDistributionUtils getInstance(){
 		if(instance==null){
-			instance = new NormalDistributionUtils(MEAN,STD,RESOLUTION);
-			
+			instance = new NormalDistributionUtils();
 		}
 		return instance;
 	}
 	
-	protected NormalDistributionUtils(float mean, float std, int resolution){
-		instance.MEAN = mean;
-		instance.STD = std;
-		instance.RESOLUTION = resolution;
-		instance.initialized = false;
+	protected NormalDistributionUtils(){
+		instance.MEAN = Constants.MEAN;
+		instance.STD = Constants.STD;
+		instance.RESOLUTION = Constants.RESOLUTION;
+		init();
 	}
 	
 	public static char getBand(float value){
-		if(!instance.initialized)
-			init();
 		short i=0;
 		for(;i<instance.bands.length-1;i++){
 			if(inBetween(value,instance.bands[i],instance.bands[i+1]))

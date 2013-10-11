@@ -69,10 +69,11 @@ public class MainClass {
 			//Set the global parameters to be used in other files
 			Constants.WINDOW_LENGTH = window;
 			Constants.SHIFT_LENGTH = shift;
-			NormalDistributionUtils.MEAN = mean;
-			NormalDistributionUtils.STD = stdDev;
-			NormalDistributionUtils.RESOLUTION = resolution;
-
+			
+			Constants.setMEAN(mean);
+			Constants.setRESOLUTION(resolution);
+			Constants.setSTD(stdDev);
+			
 			// Loop through all the files in the input path and get gesture data
 			LoopThroughAllFiles loop = new LoopThroughAllFiles();
 			HashMap<String, GestureOneDim> gestures = loop.getAllGestures(inputPath);

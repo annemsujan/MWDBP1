@@ -13,6 +13,22 @@ public class Constants {
 	public static int WINDOW_LENGTH;
 	public static int SHIFT_LENGTH;
 	
+	public static int RESOLUTION;
+	public static float MEAN;
+	public static float STD;
+	
+	public static void setRESOLUTION(int rESOLUTION) {
+		RESOLUTION = rESOLUTION;
+	}
+
+	public static void setMEAN(float mEAN) {
+		MEAN = mEAN;
+	}
+
+	public static void setSTD(float sTD) {
+		STD = sTD;
+	}
+
 	// Heatmap Constants
 	public static String HEATMAP_SAVE_LOC="/Users/kishanmaddula/Desktop/heatmap.png";
 	public static int HEATMAP_BEGIN_VALUE=280;
