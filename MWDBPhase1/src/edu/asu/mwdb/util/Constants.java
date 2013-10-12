@@ -36,6 +36,8 @@ public class Constants {
 	public static Color HEATMAP_HIGH_COLOR=Color.WHITE;
 	public static Color HEATMAP_LOW_COLOR=Color.BLACK;
 	
+	public static String MATLAB_SCRIPTS_PATH="cd(\'matlabScripts\')";
+	
 	public static void setNumberOfDocs(int count){
 		NUMBER_OF_DOCS = count;
 	}

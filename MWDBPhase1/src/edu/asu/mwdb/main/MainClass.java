@@ -20,7 +20,6 @@ import edu.asu.mwdb.util.Constants;
 import edu.asu.mwdb.util.DrawImage;
 import edu.asu.mwdb.util.GenerateWords;
 import edu.asu.mwdb.util.Misc;
-import edu.asu.mwdb.util.NormalDistributionUtils;
 import edu.asu.mwdb.util.NormalizeGesture;
 import edu.asu.mwdb.util.Validators;
 
