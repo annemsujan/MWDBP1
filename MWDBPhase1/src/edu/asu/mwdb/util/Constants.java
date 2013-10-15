@@ -17,6 +17,8 @@ public class Constants {
 	public static float MEAN;
 	public static float STD;
 	
+	public static String[] DIMENSIONS = { "W", "X", "Y", "Z" };
+	
 	public static void setRESOLUTION(int rESOLUTION) {
 		RESOLUTION = rESOLUTION;
 	}

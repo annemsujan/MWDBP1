@@ -7,30 +7,42 @@ import java.util.HashMap;
 
 import edu.asu.mwdb.beans.GestureOneDim;
 import edu.asu.mwdb.beans.SensorData;
+import edu.asu.mwdb.beans.SingleGesture;
 import edu.asu.mwdb.util.Constants;
 import edu.asu.mwdb.util.Misc;
 
 public class LoopThroughAllFiles {
-	public HashMap<String, GestureOneDim> getAllGestures(String path){
-		String[] dimensions = { "Z" };
+	public HashMap<String, SingleGesture> getAllGestures(String path){
+
 		HashMap<String, GestureOneDim> returnValues = new HashMap<String, GestureOneDim>();
-		for(String dimension : dimensions){
-			String folderPath = path + "/";
-			System.out.println(folderPath);
-			File folder = new File(folderPath);
-			File[] listOfFiles = folder.listFiles();
-			Constants.setNumberOfDocs(listOfFiles.length);
-			for(int i=0;i<listOfFiles.length;i++){
-				String fileName = listOfFiles[i].getName();
-				if(fileName.endsWith("csv")){
-					GestureOneDim oneDim = readFileData(folderPath+"/"+fileName);
-					returnValues.put(fileName,oneDim);
+		String folderPath = path + "/";
+		System.out.println(folderPath);
+		File folder = new File(folderPath + Constants.DIMENSIONS[0]);
+		File[] listOfFiles = folder.listFiles();
+		Constants.setNumberOfDocs(listOfFiles.length);
+		HashMap<String, SingleGesture> gestures = new HashMap<String,SingleGesture>();
+
+		for(int i=0;i<listOfFiles.length;i++){
+			SingleGesture gesture = new SingleGesture();
+			String fileName = listOfFiles[i].getName();
+			if(!Misc.getOnlyFileName(fileName).equals("")){
+				for(String dimension:Constants.DIMENSIONS){
+					if(fileName.endsWith("csv")){
+						String filePath = folderPath + "/" + dimension +"/"+fileName;
+						if(new File(filePath).exists()){
+							GestureOneDim oneDim = readFileData(filePath);
+							returnValues.put(fileName,oneDim);
+							gesture.set(dimension, oneDim);
+						}
+					}
 				}
+				gestures.put(Misc.getFileName(fileName),gesture);
 			}
+			
 		}
-		return returnValues;
+		return gestures;
 	}
-	
+
 	public GestureOneDim readSingleFile(String path){
 		GestureOneDim returnVal = new GestureOneDim();
 		if(new File(path).exists()){
@@ -57,6 +69,7 @@ public class LoopThroughAllFiles {
 				}
 				gesture.addSensorData(sensor);
 			}
+			buf.close();
 			return gesture;
 		}
 		catch(Exception e){
